@@ -5,7 +5,7 @@
     [cognitect.transit :as t])
   (:import
     [datascript.core DB Datom]
-    [datascript.btset BTSet]
+    [datascript.btset BTSet Iter]
     [java.io ByteArrayInputStream ByteArrayOutputStream]))
 
 
@@ -15,14 +15,16 @@
 
 
 (def write-handlers
-  { DB    (t/write-handler "datascript/DB"
-            (fn [db]
-              { :schema (:schema db)
-                :datoms (:eavt db) }))
-    Datom (t/write-handler "datascript/Datom"
-            (fn [^Datom d]
-              [(.-e d) (.-a d) (.-v d) (.-tx d)]))
-    BTSet (get t/default-write-handlers java.util.List) })
+  (let [list-handler (get t/default-write-handlers java.util.List)]
+    { DB    (t/write-handler "datascript/DB"
+              (fn [db]
+                { :schema (:schema db)
+                  :datoms (:eavt db) }))
+      Datom (t/write-handler "datascript/Datom"
+              (fn [^Datom d]
+                [(.-e d) (.-a d) (.-v d) (.-tx d)]))
+      BTSet list-handler
+      Iter list-handler }))
 
 
 (defn read-transit [is]
@@ -41,7 +43,7 @@
   (let [os (ByteArrayOutputStream.)]
     (write-transit o os)
     (.toByteArray os)))
-    
+
 
 (defn write-transit-str [o]
   (String. (write-transit-bytes o) "UTF-8"))

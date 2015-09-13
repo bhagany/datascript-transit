@@ -20,7 +20,8 @@
     dc/Datom (t/write-handler (constantly "datascript/Datom")
                (fn [d]
                  [(.-e d) (.-a d) (.-v d) (.-tx d)]))
-    db/BTSet (t/ListHandler.) })
+    db/BTSet (t/ListHandler.)
+    db/Iter (t/ListHandler.) })
 
 
 (defn read-transit-str [s]
